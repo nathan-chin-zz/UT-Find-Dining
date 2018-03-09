@@ -53,7 +53,7 @@ links = links[0].find_all('a')
 for l in links:
     dining_location_urls.append(l['href'])
 
-collect = [LOCATION.J2, LOCATION.J2_FAST, LOCATION.Jest_A_Pizza, LOCATION.Kinsolving]
+collect = [LOCATION.Jester_City_Limits, LOCATION.Jester_City_Market, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST, LOCATION.Kinsolving, LOCATION.Kins_Market, LOCATION.Cypress_Bend_Cafe, LOCATION.Georges_Cafe]
 for count, i in enumerate(collect):
     printName(collect[count].name, '#')
     url = dining_location_urls[i.value]
