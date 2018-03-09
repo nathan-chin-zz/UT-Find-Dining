@@ -10,9 +10,23 @@ import urllib3
 from bs4 import BeautifulSoup
 from enum import Enum
 
+def printName(name, symbol):
+    loop = 0
+    if symbol == '#': print()
+    while loop < len(name) + 4:
+        print(symbol, end='')
+        loop += 1
+    print()
+    print(symbol, name.upper(), symbol)
+    loop = 0
+    while loop < len(name) + 4:
+        print(symbol, end='')
+        loop += 1
+    print()
+
 class LOCATION(Enum):
-    Jester_City_Market = 0
-    Jester_City_Limits = 1
+    Jester_City_Limits = 0
+    Jester_City_Market = 1
     Jest_A_Pizza = 2
     J2 = 3
     J2_FAST = 4
@@ -25,6 +39,7 @@ class LOCATION(Enum):
 # Constants
 BASE_URL = 'http://hf-food.austin.utexas.edu/foodpro/'
 LOCATIONS_URL = 'location2.asp'
+LOCATIONS = list(LOCATION)
 
 
 # Global variables
@@ -38,15 +53,27 @@ links = links[0].find_all('a')
 for l in links:
     dining_location_urls.append(l['href'])
 
-collect = [LOCATION.J2.value]
-for i in collect:
-    url = dining_location_urls[i]
+collect = [LOCATION.J2, LOCATION.J2_FAST, LOCATION.Jest_A_Pizza, LOCATION.Kinsolving]
+for count, i in enumerate(collect):
+    printName(collect[count].name, '#')
+    url = dining_location_urls[i.value]
     page = http.request('GET', BASE_URL + url)
     page = BeautifulSoup(page.data.decode('utf-8'), 'lxml')
     menu_data = page.find('frame', attrs={'title': 'main content window'})
     url = BASE_URL + menu_data['src']
     menu = http.request('GET', url)
     menu = BeautifulSoup(menu.data.decode('utf-8'), 'lxml')
+
+    meals = menu.find_all('div', attrs={'class': 'menusampmeals'})
+    food = menu.find_all('table', attrs={'cellspacing': '1'})
+    for pos, f in enumerate(food):
+        printName(meals[pos].text.strip().upper(), '-')
+        item = f.find_all('div')
+        for i in item:
+            print(i.text.strip())
+    if len(meals) == 0:
+        print(collect[count].name, 'is currently closed :(')
+    '''
     meals = menu.find_all('div', attrs={'class': 'menusampmeals'})
     categories = menu.find_all('div', attrs={'class': 'menusampcats'})
     food = menu.find_all('div', attrs={'class': 'menusamprecipes'})
@@ -57,6 +84,7 @@ for i in collect:
     print('Food: ')
     [print(f.text.strip()) for f in food]
     print()
+    '''
 '''
 dining_main = "http://hf-food.austin.utexas.edu/foodpro/"
 j2_url = 'nutframe2.asp?sName=The+University+of+Texas+at+Austin+%2D+Housing+and+Dining&locationNum=12&locationName=Jester+2nd+Floor+Dining&naFlag=1'
