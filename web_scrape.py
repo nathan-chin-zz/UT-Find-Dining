@@ -36,16 +36,41 @@ def about():
     print('This was created by Nathan Chin')
 
 def help():
+    '''
+    Window that allows users to select FAQ questions and view their answers
+    '''
+    info = open('help.txt')
+    info_str = info.read()
+    info_str = info_str.split('\n')
+    count = 0
     while(True):
         print('\n-HELP-')
-        print('Press enter to return to the main menu')
+        print('Press \'q\' to return to the main menu')
         print('What would you like help with?')
-        print('0: What can this script do?')
-        print('1: ')
-        print('2:')
-        print('----------')
-        print('Q: Menu will allow you to')
-
+        for i in info_str:
+            if count % 2 == 0:
+                print('%d:' % (count // 2), i[2:])
+            count += 1
+        try:
+            select = input('>> ')
+            if select.lower() == 'q':
+                break
+            elif select.isalnum():
+                select = int(select)
+                if select < 0 or select > (count // 2):
+                    raise Exception
+                else:
+                    print('Q:', info_str[select * 2][2:])
+                    print('A:', info_str[select * 2 + 1][2:])
+                    input('Press enter to continue')
+            else:
+                raise Exception
+        except Exception:
+            print('Invalid input. Please select one of the options above')
+            input('Press enter to continue')
+        count = 0
+    info.close()
+        
 def done():
     '''
     Prints out exit statements
@@ -55,15 +80,15 @@ def done():
     exit()
 
 def main_menu():
-    print('\n-MAIN MENU-')
-    print('What would you like to do?')
-    print('0: Menus')
-    print('1: Help me choose')
-    print('2: Search')
-    print('3: About')
-    print('4: Help')
-    print('5: Quit')
     while(True):
+        print('\n-MAIN MENU-')
+        print('What would you like to do?')
+        print('0: Menus')
+        print('1: Help me choose')
+        print('2: Search')
+        print('3: About')
+        print('4: Help')
+        print('5: Quit')
         try:
             choice = int(input('>> '))
             if choice < 0 or choice > 5:
@@ -71,6 +96,7 @@ def main_menu():
             return choice
         except Exception:
             print('Invalid input. Please select one of the options above')
+            input('Press enter to continue')
 
     # See menu(s), where should you go, search food
 
@@ -102,19 +128,20 @@ class LOCATION(Enum):
 
 def main():
     introduction()
-    option = main_menu()
-    if option == 0:     # Menus
-        menus()
-    if option == 1:     # Help me choose
-        help_choose()
-    if option == 2:     # Search
-        search()
-    if option == 3:     # About
-        about()
-    if option == 4:     # Help
-        help()
-    if option == 5:     # Quit
-        done()
+    while(True):
+        option = main_menu()
+        if option == 0:     # Menus
+            menus()
+        if option == 1:     # Help me choose
+            help_choose()
+        if option == 2:     # Search
+            search()
+        if option == 3:     # About
+            about()
+        if option == 4:     # Help
+            help()
+        if option == 5:     # Quit
+            done()
 
     # Constants
     BASE_URL = 'http://hf-food.austin.utexas.edu/foodpro/'

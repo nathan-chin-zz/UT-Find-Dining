@@ -1,0 +1,12 @@
++ Why was this created?
+- Check out the 'About' window!
++ How do I view the menus?
+- Go to the 'Menus' window and select which dining location you would like to view
++ I don't want to make the decision. Help me out here!
+- Go to the 'Help me choose' window, and there are several options to help you out
++ I want to eat ____. Where can I find it?
+- Go to the 'Search' window and
++ What if I want to eat off campus?
+- This script only covers on campus dining, sorry!
++ There's a bug in the code!
+- Everyone makes mistakes! Let me know what it is when you find one
