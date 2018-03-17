@@ -31,7 +31,7 @@ LOCATION_HOURS = {
     LOCATION.Jester_City_Market.name: ['Monday-Thursday | 7am-Midnight', 'Friday | 7am-9pm', 'Saturday | 2pm-8pm', 'Sunday | 2pm-Midnight'],
     LOCATION.Jest_A_Pizza.name: ['Monday-Thursday | 11am-Midnight', 'Friday | 11am-2pm', 'Saturday | Closed', 'Sunday | 5pm-Midnight'],
     LOCATION.J2.name: ['Monday-Friday | 10:30am-8pm', 'Saturday-Sunday | Closed'],
-    LOCATION.J2_FAST.name: ['Monday-Friday | 10:30am-8pm', 'Saturday-Sunday | Closed'],
+    LOCATION.J2_FAST.name: ['Monday-Friday | 10:30am-8pm', 'Saturday-Sunday | Closed'], 
     LOCATION.Kinsolving.name: ['Monday-Friday | 10:30am-8pm', 'Saturday (and non-class days) | 11am-2pm, 4:30pm-7pm', 'Sunday | 11am-2pm'],
     LOCATION.Kins_Market.name: ['Monday-Thursday | 7am-11pm', 'Friday | 7am-3pm', 'Saturday | 3pm-7pm', 'Sunday | 4pm-11pm'],
     LOCATION.Cypress_Bend_Cafe.name: ['Monday-Thursday | 7am-9pm', 'Friday | 7am-2pm', 'Saturday-Sunday | 12pm-7pm'],
@@ -60,21 +60,53 @@ def introduction():
     print('Anyways, let\'s start finding so you can start dining!')
 
 def menus():
-    select = menu_options()
-    print(select)
+    while(True):
+        select = menu_options()
+        select.sort()
+        for i in select:
+            i = int(i)
+            if i == -1:
+                return
+            elif i == 9 and len(select) == 1:
+                print('Menus for all locations:')
+                
+            elif i > 0 and i < 9:
+                print('Menu for :')
+                
+            elif i == 9 and len(select) > 1:
+                print('If you\'re printing multiple locations, you don\'t need to print all locations too\n')
+                break
+            print()
+        input('Press enter to continue')
 
 def hours():
-    select = hour_options()
-    print(select)
-    '''
-    for j,k in LOCATION_HOURS.items():
-        print(j, 'hours:')
-        for d in k:
-            print(d)
-    '''
+    while(True):
+        select = hour_options()
+        select.sort()
+        for i in select:
+            i = int(i)
+            if i == -1:
+                return
+            elif i == 9 and len(select) == 1:
+                print('Hours for all locations:')
+                for j,k in LOCATION_HOURS.items():
+                    print('Hours for %s:' % j)
+                    for l in k:
+                        print(l)
+                    print()
+            elif i > 0 and i < 9:
+                print('Hours for %s:' % LOCATION(i).name)
+                for j in LOCATION_HOURS[LOCATION(i).name]:
+                    print(j)
+            elif i == 9 and len(select) > 1:
+                print('If you\'re printing multiple locations, you don\'t need to print all locations too\n')
+                break
+            print()
+        input('Press enter to continue')
+
 def dining_locations():
     while(True):
-        print('\n-DINING LOCATIONS')
+        print('\n-DINING LOCATIONS-')
         print('Press \'q\' to return to the main menu')
         print('What information would you like to see?')
         print('0: Menus')
@@ -93,8 +125,6 @@ def dining_locations():
         except Exception:
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
-            
-    print('\nPress enter to return to the main menu')
 
 def help_choose():
     print('\n-HELP ME CHOOSE-')
@@ -202,7 +232,7 @@ def menu_options():
     while(True):
         print('\n-MENUS-')
         print('Press \'q\' to return to the Dining Locations menu')
-        print('Which location\'s menu would you like to see?')
+        print('Which location\'s menu(s) would you like to see? If you wish to select multiple, separate them by a comma')
         print('0: Jester City Limits (JCL)')
         print('1: Jester City Market (JCM)')
         print('2: Jest A\' Pizza')
@@ -212,13 +242,16 @@ def menu_options():
         print('6: Kin\'s Market')
         print('7: Cypress Bend Cafe')
         print('8: Littlefield Patio Cafe')
+        print('9: PRINT ALL MENUS')
         try:
             select = input('>> ')
             if select.lower() == 'q':
-                break
-            select = int(select)
-            if select < 0 or select > 8:
-                raise Exception
+                return [-1]
+            select = str(select)
+            select = select.split(',')
+            for i in select:
+                if int(i) < 0 or int(i) > 9:
+                    raise Exception
             return select
         except Exception:
             print('Invalid input. Please select one of the options above')
@@ -240,13 +273,16 @@ def day_options():
         print('6: Kin\'s Market')
         print('7: Cypress Bend Cafe')
         print('8: Littlefield Patio Cafe')
+        print('9: PRINT ALL DAYS')
         try:
             select = input('>> ')
             if select.lower() == 'q':
-                break
-            select = int(select)
-            if select < 0 or select > 8:
-                raise Exception
+                return [-1]
+            select = str(select)
+            select = select.split(',')
+            for i in select:
+                if int(i) < 0 or int(i) > 9:
+                    raise Exception
             return select
         except Exception:
             print('Invalid input. Please select one of the options above')
@@ -257,6 +293,7 @@ def hour_options():
         print('\n-HOURS-')
         print('Press \'q\' to return to the Dining Locations menu')
         print('Which location\'s hours would you like to see?')
+        print('*Only prints hours for normal class days. View menus to see if open at all on a given day*')
         print('0: Jester City Limits (JCL)')
         print('1: Jester City Market (JCM)')
         print('2: Jest A\' Pizza')
@@ -266,13 +303,16 @@ def hour_options():
         print('6: Kin\'s Market')
         print('7: Cypress Bend Cafe')
         print('8: Littlefield Patio Cafe')
+        print('9: PRINT ALL HOURS')
         try:
             select = input('>> ')
             if select.lower() == 'q':
-                break
-            select = int(select)
-            if select < 0 or select > 8:
-                raise Exception
+                return [-1]
+            select = str(select)
+            select = select.split(',')
+            for i in select:
+                if int(i) < 0 or int(i) > 9:
+                    raise Exception
             return select
         except Exception:
             print('Invalid input. Please select one of the options above')
