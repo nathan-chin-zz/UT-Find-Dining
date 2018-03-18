@@ -7,6 +7,7 @@ Date started: 3/8/18
 '''
 
 import urllib3
+import requests
 from bs4 import BeautifulSoup
 from enum import Enum
 
@@ -20,12 +21,21 @@ class LOCATION(Enum):
     Kins_Market = 6
     Cypress_Bend_Cafe = 7
     Littlefield_Patio_Cafe = 8
-    Georges_Cafe = 9
+
+class DAY(Enum):
+    Yesterday = 0
+    Today = 1
+    Tomorrow = 2
+    Two = 3
+    Three = 4
+    Four = 5
+    Five = 6
 
 # Constants
 BASE_URL = 'http://hf-food.austin.utexas.edu/foodpro/'
 LOCATIONS_URL = 'location2.asp'
 LOCATIONS = list(LOCATION)
+DAYS = list(DAY)
 LOCATION_HOURS = {
     LOCATION.Jester_City_Limits.name: ['Monday-Thursday | 7am-11pm', 'Friday | 7am-9pm', 'Saturday | 9am-8pm', 'Sunday | 9am-11pm'],
     LOCATION.Jester_City_Market.name: ['Monday-Thursday | 7am-Midnight', 'Friday | 7am-9pm', 'Saturday | 2pm-8pm', 'Sunday | 2pm-Midnight'],
@@ -38,18 +48,32 @@ LOCATION_HOURS = {
     LOCATION.Littlefield_Patio_Cafe.name: ['Monday-Thursday | 7am-8pm', 'Friday | 7am-4pm', 'Saturday | Closed', 'Sunday | 2pm-8pm']
 }
 
-
 # Global variables
 dining_location_urls = []   #Holds the urls for each dining location
+http = urllib3.PoolManager()
+dining_location_days = []
+dining_location_days_urls = []
 
 def set_up():
-    http = urllib3.PoolManager()
     page = http.request('GET', BASE_URL + LOCATIONS_URL)
     page = BeautifulSoup(page.data.decode('utf-8'), 'lxml')
     links = page.find_all('td', attrs={'width':'600px'})
     links = links[0].find_all('a')
     for l in links:
         dining_location_urls.append(l['href'])
+    for pos, j in enumerate(dining_location_urls):
+        page = http.request('GET', BASE_URL + j)
+        page = BeautifulSoup(page.data.decode('utf-8'), 'lxml')
+        day_data = page.find('frame', attrs={'name': 'AuroraContents'})
+        url = BASE_URL + day_data['src']
+        page = http.request('GET', url)
+        page = BeautifulSoup(page.data.decode('utf-8'), 'lxml')
+        day_data = page.find_all('a', attrs={'target': 'AuroraMain'})
+        dining_location_days_urls.append(list())
+        dining_location_days.append(list())
+        for k in day_data:
+            dining_location_days[pos].append(k.text.strip())
+            dining_location_days_urls[pos].append(k['href'])
 
 def introduction():
     '''
@@ -59,24 +83,84 @@ def introduction():
     print('This script was written by Nathan Chin for his final project in EE119, Introduction to Python (Spring 2018)')
     print('Anyways, let\'s start finding so you can start dining!')
 
+def scrape(collect_menus, collect_days, is_all_menus, is_all_days):
+    if is_all_menus and is_all_days:
+        print('Menus for all locations and all days:')
+    elif is_all_menus:
+        print('Menus for all locations:')
+    elif is_all_days:
+        print('Menus for all days:')
+    else:
+        print('Printing requested menus for request days:')
+    for count, i in enumerate(collect_menus):
+        val = i.value
+        printName(collect_menus[count].name, '#')
+        for i2 in collect_days:
+            printName(dining_location_days[val][i2.value], '+')
+            url = dining_location_days_urls[val][i2.value]
+            #page = http.request('GET', BASE_URL + url)
+            #page = BeautifulSoup(page.data.decode('utf-8'), 'html.parser')
+            r = requests.get(BASE_URL + url)
+            page = BeautifulSoup(r.text, 'lxml')
+            meals = page.find('table', attrs={'cellspacing': '0'})
+            food = page.find_all('table', attrs={'cellspacing': '1'})
+            if meals == None:
+                print(collect_menus[count].name, 'is closed on', dining_location_days[val][i2.value], ':(')
+            else:
+                item = meals.find_all('div')
+                for i in item:
+                    i = i.text.strip()
+                    if i.lower() == 'breakfast' or i.lower() == 'lunch' or i.lower() == 'dinner':
+                        printName(i, '-')
+                    else:
+                        if i.startswith('-'):
+                            print()
+                        if len(i) > 0:
+                            print(i)
+            print()
+
 def menus():
     while(True):
+        collect_menus = []
+        collect_days = []
+        print_all_menus = print_all_days = False
         select = menu_options()
         select.sort()
-        for i in select:
+        if -1 in select:
+            return
+        elif '9' in select and len(select) > 1:
+            print('If you\'re printing multiple locations, you don\'t need to print all locations too\n')
+        elif '9' in select and len(select) == 1:
+            select = [0,1,2,3,4,5,6,7,8]
+            print_all_menus = True
+        for j in select:
+            j = int(j)
+            collect_menus.append(LOCATION(j))
+        select2 = day_options()
+        select2.sort()
+        if -1 in select2:
+            return
+        elif '7' in select2 and len(select2) > 1:
+            print('If you\'re printing multiple days, you don\'t need to print all days too\n')
+        elif '7' in select2 and len(select2) == 1:
+            select2 = [0,1,2,3,4,5,6]
+            print_all_days = True
+        for j in select2:
+            j = int(j)
+            collect_days.append(DAY(j))
+        scrape(collect_menus, collect_days, print_all_menus, print_all_days)    
+        '''for i in select:
             i = int(i)
-            if i == -1:
-                return
-            elif i == 9 and len(select) == 1:
+            if i == 9 and len(select) == 1:
                 print('Menus for all locations:')
                 
-            elif i > 0 and i < 9:
+            elif i > -1 and i < 9:
                 print('Menu for :')
                 
             elif i == 9 and len(select) > 1:
                 print('If you\'re printing multiple locations, you don\'t need to print all locations too\n')
                 break
-            print()
+            print()'''
         input('Press enter to continue')
 
 def hours():
@@ -94,7 +178,7 @@ def hours():
                     for l in k:
                         print(l)
                     print()
-            elif i > 0 and i < 9:
+            elif i > -1 and i < 9:
                 print('Hours for %s:' % LOCATION(i).name)
                 for j in LOCATION_HOURS[LOCATION(i).name]:
                     print(j)
@@ -261,19 +345,10 @@ def day_options():
     while(True):
         print('\n-DAYS-')
         print('Press \'q\' to return to the main menu')
-        print('Which days\'s menu would you like to see? Today\'s menu is the first on the list')
-        count = 0
-
-        print('0: Jester City Limits (JCL)')
-        print('1: Jester City Market (JCM)')
-        print('2: Jest A\' Pizza')
-        print('3: Jester 2nd Floor Dining (J2)')
-        print('4: J2 FAST Line')
-        print('5: Kinsolving Dining Hall (Kins)')
-        print('6: Kin\'s Market')
-        print('7: Cypress Bend Cafe')
-        print('8: Littlefield Patio Cafe')
-        print('9: PRINT ALL DAYS')
+        print('Which days\'s menu would you like to see?')
+        for pos, i in enumerate(dining_location_days[0]):
+            print('%d:' % pos, i)
+        print('7: PRINT ALL DAYS')
         try:
             select = input('>> ')
             if select.lower() == 'q':
@@ -281,7 +356,7 @@ def day_options():
             select = str(select)
             select = select.split(',')
             for i in select:
-                if int(i) < 0 or int(i) > 9:
+                if int(i) < 0 or int(i) > 7:
                     raise Exception
             return select
         except Exception:
@@ -293,7 +368,7 @@ def hour_options():
         print('\n-HOURS-')
         print('Press \'q\' to return to the Dining Locations menu')
         print('Which location\'s hours would you like to see?')
-        print('*Only prints hours for normal class days. View menus to see if open at all on a given day*')
+        print('*Only prints hours for normal class days. View menus to see if location is open at all*')
         print('0: Jester City Limits (JCL)')
         print('1: Jester City Market (JCM)')
         print('2: Jest A\' Pizza')
@@ -320,7 +395,7 @@ def hour_options():
 
 def printName(name, symbol):
     loop = 0
-    if symbol == '#': print()
+    print()
     while loop < len(name) + 4:
         print(symbol, end='')
         loop += 1
@@ -330,8 +405,6 @@ def printName(name, symbol):
     while loop < len(name) + 4:
         print(symbol, end='')
         loop += 1
-    print()
-
 
 def main():
     set_up()
@@ -350,61 +423,6 @@ def main():
             help()
         if option == 5:     # Quit
             done()
-
-    collect = [LOCATION.Jester_City_Limits, LOCATION.Jester_City_Market, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST] #LOCATION.Kinsolving, LOCATION.Kins_Market, LOCATION.Cypress_Bend_Cafe, LOCATION.Georges_Cafe]
-    for count, i in enumerate(collect):
-        printName(collect[count].name, '#')
-        url = dining_location_urls[i.value]
-        page = http.request('GET', BASE_URL + url)
-        page = BeautifulSoup(page.data.decode('utf-8'), 'lxml')
-        menu_data = page.find('frame', attrs={'title': 'main content window'})
-        url = BASE_URL + menu_data['src']
-        menu = http.request('GET', url)
-        menu = BeautifulSoup(menu.data.decode('utf-8'), 'lxml')
-
-        meals = menu.find_all('div', attrs={'class': 'menusampmeals'})
-        food = menu.find_all('table', attrs={'cellspacing': '1'})
-        for pos, f in enumerate(food):
-            printName(meals[pos].text.strip().upper(), '-')
-            item = f.find_all('div')
-            for i in item:
-                print(i.text.strip())
-        if len(meals) == 0:
-            print(collect[count].name, 'is currently closed :(')
-        '''
-        meals = menu.find_all('div', attrs={'class': 'menusampmeals'})
-        categories = menu.find_all('div', attrs={'class': 'menusampcats'})
-        food = menu.find_all('div', attrs={'class': 'menusamprecipes'})
-        print('Meals: ')
-        [print(m.text.strip()) for m in meals]
-        print('Categories: ')
-        [print(c.text.strip()) for c in categories]
-        print('Food: ')
-        [print(f.text.strip()) for f in food]
-        print()
-        '''
-    '''
-    dining_main = "http://hf-food.austin.utexas.edu/foodpro/"
-    j2_url = 'nutframe2.asp?sName=The+University+of+Texas+at+Austin+%2D+Housing+and+Dining&locationNum=12&locationName=Jester+2nd+Floor+Dining&naFlag=1'
-    j2_main = http.request('GET', str(dining_main + j2_url))
-    j2_main_soup = BeautifulSoup(j2_main.data.decode('utf-8'), 'lxml')
-    j2_frames = j2_main_soup.find('frame', attrs={'title':'main content window'})
-    j2_menu_url = dining_main + (j2_frames['src'])
-    j2_menu = http.request('GET', j2_menu_url)
-    j2_menu_soup = BeautifulSoup(j2_menu.data.decode('utf-8'), 'lxml')
-    j2_meals = j2_menu_soup.find_all('div', attrs={'class':'menusampmeals'})
-    j2_categories = j2_menu_soup.find_all('div', attrs={'class':'menusampcats'})
-    j2_food = j2_menu_soup.find_all('div', attrs={'class':'menusamprecipes'})
-    print('Meals:')
-    for m in j2_meals:
-        print(m.text.strip())
-    print('Categories:')
-    for c in j2_categories:
-        print(c.text.strip())
-    print('Food:')
-    for f in j2_food:
-        print(f.text.strip())
-    '''
 
 if __name__ == '__main__':
     main()
