@@ -1,12 +1,16 @@
 + Why was this created?
 - Check out the 'About' window!
 + How do I view the menus?
-- Go to the 'Menus' window and select which dining location you would like to view
+- Go to the 'Menus' window, select which dining location you would like to view, and select which day's menu you would like to see
++ I select some days' menus to print out, but the wrong ones printed out. Wyd?
+- Unfortunately, on the official UT dining menus for J2_Fast and Jest_A_Pizza, the dates are ahead by one day. Blame Fenves (jk it's my fault)
 + I don't want to make the decision. Help me out here!
-- Go to the 'Help me choose' window, and there are several options to help you out
+- Go to the 'Help me choose' window, and there are several questions to guide you into an answer (suggestions made randomly)
 + I want to eat ____. Where can I find it?
-- Go to the 'Search' window and
+- Go to the 'Search' window and search the item you want to eat! Note it searches the exact wording typed, so be careful!
++ The 'Search' function didn't return anything, what's up with that?
+- If nothing was returned, then the item you want to eat isn't being served at any dining location in the next week. Try again next week!
 + What if I want to eat off campus?
 - This script only covers on campus dining, sorry!
 + There's a bug in the code!
-- Everyone makes mistakes! Let me know what it is when you find one
+- Contrary to popular belief, I'm not perfect. Let me know if you find one
