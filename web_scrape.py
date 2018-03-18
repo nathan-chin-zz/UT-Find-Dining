@@ -8,6 +8,7 @@ Date started: 3/8/18
 
 import urllib3
 import requests
+import random
 from bs4 import BeautifulSoup
 from enum import Enum
 
@@ -47,6 +48,12 @@ LOCATION_HOURS = {
     LOCATION.Cypress_Bend_Cafe.name: ['Monday-Thursday | 7am-9pm', 'Friday | 7am-2pm', 'Saturday-Sunday | 12pm-7pm'],
     LOCATION.Littlefield_Patio_Cafe.name: ['Monday-Thursday | 7am-8pm', 'Friday | 7am-4pm', 'Saturday | Closed', 'Sunday | 2pm-8pm']
 }
+SHOP = [LOCATION.Jester_City_Market, LOCATION.Kins_Market]
+EAT = [LOCATION.Jester_City_Limits, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST, LOCATION.Kinsolving, LOCATION.Cypress_Bend_Cafe, LOCATION.Littlefield_Patio_Cafe]
+BUFFETS = [LOCATION.J2, LOCATION.J2_FAST, LOCATION.Kinsolving]
+A_LA_CARTE = [LOCATION.Jester_City_Limits, LOCATION.Jest_A_Pizza, LOCATION.Cypress_Bend_Cafe, LOCATION.Littlefield_Patio_Cafe]
+NORTH_CAMPUS = [LOCATION.Kinsolving, LOCATION.Kins_Market, LOCATION.Littlefield_Patio_Cafe]
+SOUTH_CAMPUS = [LOCATION.Jester_City_Limits, LOCATION.Jester_City_Market, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST, LOCATION.Cypress_Bend_Cafe]
 
 # Global variables
 dining_location_urls = []   #Holds the urls for each dining location
@@ -103,7 +110,7 @@ def scrape(collect_menus, collect_days, is_all_menus, is_all_days):
             r = requests.get(BASE_URL + url)
             page = BeautifulSoup(r.text, 'lxml')
             meals = page.find('table', attrs={'cellspacing': '0'})
-            food = page.find_all('table', attrs={'cellspacing': '1'})
+            #food = page.find_all('table', attrs={'cellspacing': '1'})
             if meals == None:
                 print(collect_menus[count].name, 'is closed on', dining_location_days[val][i2.value], ':(')
             else:
@@ -188,6 +195,75 @@ def hours():
             print()
         input('Press enter to continue')
 
+def current_location():
+    while(True):
+        print('\n-CURRENT LOCATION')
+        print('Press \'q\' to return to the Help Me Choose menu')
+        print('Select your current location on campus')
+        print('0: North campus')
+        print('1: South campus')
+        print('2: Middle of campus')
+        try:
+            select = input('>> ')
+            if select.lower() == 'q':
+                return [-1]
+            select = int(select)
+            if select < 0 or select > 2:
+                raise Exception
+            return select
+        except Exception as ex:
+            print(ex)
+            print('Invalid input. Please select one of the options above')
+            input('\nPress enter to continue')
+
+def shopping(options):
+    while(True):
+        print('\n-SHOPPING-')
+        try:
+            select = current_location()
+            if select == 0:
+                return list(set(options) - set(SOUTH_CAMPUS))
+            elif select == 1:
+                return list(set(options) - set(NORTH_CAMPUS))
+            elif select == 2:
+                return options
+            else:
+                raise Exception
+        except Exception as ex:
+            print(ex)
+            print('Invalid input. Please select one of the options above')
+            input('\nPress enter to continue')
+    
+def eating(options):
+    while(True):
+        print('\n-EATING-')
+        print('Choose your preferred form of dining')
+        print('0: Buffet')
+        print('1: A la carte')
+        print('2: No preference')
+        try:
+            select = input('>> ')
+            if select.lower() == 'q':
+                break
+            select = int(select)
+            select2 = current_location()
+            if select == 0:
+                options = list(set(options) - set(A_LA_CARTE))
+            elif select == 1:
+                options = list(set(options) - set(BUFFETS))
+            if select2 == 0:
+                return list(set(options) - set(SOUTH_CAMPUS))
+            elif select2 == 1:
+                return list(set(options) - set(NORTH_CAMPUS))
+            elif select2 == 2:
+                return options
+            else:
+                raise Exception
+        except Exception as ex:
+            print(ex)
+            print('Invalid input. Please select one of the options above')
+            input('\nPress enter to continue')
+
 def dining_locations():
     while(True):
         print('\n-DINING LOCATIONS-')
@@ -206,13 +282,46 @@ def dining_locations():
                 hours()
             else:
                 raise Exception
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
 
 def help_choose():
-    print('\n-HELP ME CHOOSE-')
-    print('\nPress enter to return to the main menu')
+    while(True):
+        options = LOCATIONS
+        print('\n-HELP ME CHOOSE-')
+        print('Press \'q\' to return to the main menu')
+        print('Are you shopping or eating?')
+        print('0: Shopping')
+        print('1: Eating')
+        try:
+            select = input('>> ')
+            if select.lower() == 'q':
+                break
+            select = int(select)
+            if select == 0:
+                options = shopping(list(set(options) - set(EAT)))
+            elif select == 1:
+                options = eating(list(set(options) - set(SHOP)))
+            else:
+                raise Exception
+            print(options)
+            print('Go to ', end='')
+            rand = random.random()
+            div = 1 / len(options)
+            count = 0
+            while div <= 1:
+                if rand < div:
+                    print('%s!' % options[count].name)
+                    input('\nPress enter to return to the Help Me Choose menu')
+                    break
+                div += div
+                count += 1
+        except Exception as ex:
+            print(ex)
+            print('Invalid input. Please select one of the options above')
+            input('\nPress enter to continue')
 
 def search():
     print('\n-SEARCH-')
@@ -270,7 +379,8 @@ def help():
                     input('\nPress enter to continue')
             else:
                 raise Exception
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
         count = 0
@@ -308,7 +418,8 @@ def main_menu_options():
             if select < 0 or select > 4:
                 raise Exception
             return select
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
 
@@ -337,7 +448,8 @@ def menu_options():
                 if int(i) < 0 or int(i) > 9:
                     raise Exception
             return select
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
 
@@ -359,7 +471,8 @@ def day_options():
                 if int(i) < 0 or int(i) > 7:
                     raise Exception
             return select
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
 
@@ -389,7 +502,8 @@ def hour_options():
                 if int(i) < 0 or int(i) > 9:
                     raise Exception
             return select
-        except Exception:
+        except Exception as ex:
+            print(ex)
             print('Invalid input. Please select one of the options above')
             input('\nPress enter to continue')
 
