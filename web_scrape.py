@@ -49,11 +49,11 @@ LOCATION_HOURS = {
     LOCATION.Littlefield_Patio_Cafe.name: ['Monday-Thursday | 7am-8pm', 'Friday | 7am-4pm', 'Saturday | Closed', 'Sunday | 2pm-8pm']
 }
 SHOP = [LOCATION.Jester_City_Market, LOCATION.Kins_Market]
-EAT = [LOCATION.Jester_City_Limits, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST, LOCATION.Kinsolving, LOCATION.Cypress_Bend_Cafe, LOCATION.Littlefield_Patio_Cafe]
-BUFFETS = [LOCATION.J2, LOCATION.J2_FAST, LOCATION.Kinsolving]
+EAT = [LOCATION.Jester_City_Limits, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.Kinsolving, LOCATION.Cypress_Bend_Cafe, LOCATION.Littlefield_Patio_Cafe]
+BUFFETS = [LOCATION.J2, LOCATION.Kinsolving]
 A_LA_CARTE = [LOCATION.Jester_City_Limits, LOCATION.Jest_A_Pizza, LOCATION.Cypress_Bend_Cafe, LOCATION.Littlefield_Patio_Cafe]
 NORTH_CAMPUS = [LOCATION.Kinsolving, LOCATION.Kins_Market, LOCATION.Littlefield_Patio_Cafe]
-SOUTH_CAMPUS = [LOCATION.Jester_City_Limits, LOCATION.Jester_City_Market, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.J2_FAST, LOCATION.Cypress_Bend_Cafe]
+SOUTH_CAMPUS = [LOCATION.Jester_City_Limits, LOCATION.Jester_City_Market, LOCATION.Jest_A_Pizza, LOCATION.J2, LOCATION.Cypress_Bend_Cafe]
 
 # Global variables
 dining_location_urls = []   #Holds the urls for each dining location
@@ -92,18 +92,20 @@ def introduction():
 
 def scrape(collect_menus, collect_days, is_all_menus, is_all_days):
     if is_all_menus and is_all_days:
-        print('Menus for all locations and all days:')
+        print('Menus for all locations and all days-----------------------------------------------------------------------------START')
     elif is_all_menus:
-        print('Menus for all locations:')
+        print('Menus for all locations------------------------------------------------------------------------------------------START')
     elif is_all_days:
-        print('Menus for all days:')
+        print('Menus for all days-----------------------------------------------------------------------------------------------START')
     else:
-        print('Printing requested menus for request days:')
+        print('Printing requested menus for request days------------------------------------------------------------------------START')
     for count, i in enumerate(collect_menus):
         val = i.value
-        printName(collect_menus[count].name, '#')
+        print('----------------------------------------------------------------------------------------', collect_menus[count].name, end='')
+        #printName(collect_menus[count].name, '#')
         for i2 in collect_days:
-            printName(dining_location_days[val][i2.value], '+')
+            print('\n-----------------------------------------------------------------', dining_location_days[val][i2.value], end='')
+            #printName(dining_location_days[val][i2.value], '+')
             url = dining_location_days_urls[val][i2.value]
             #page = http.request('GET', BASE_URL + url)
             #page = BeautifulSoup(page.data.decode('utf-8'), 'html.parser')
@@ -112,13 +114,16 @@ def scrape(collect_menus, collect_days, is_all_menus, is_all_days):
             meals = page.find('table', attrs={'cellspacing': '0'})
             #food = page.find_all('table', attrs={'cellspacing': '1'})
             if meals == None:
+                print()
                 print(collect_menus[count].name, 'is closed on', dining_location_days[val][i2.value], ':(')
+                print()
             else:
                 item = meals.find_all('div')
                 for i in item:
                     i = i.text.strip()
                     if i.lower() == 'breakfast' or i.lower() == 'lunch' or i.lower() == 'dinner':
-                        printName(i, '-')
+                        #printName(i, '-')
+                        print('\n-----------------------------------------------------', i, end='')
                     else:
                         if i.startswith('-'):
                             print()
@@ -197,7 +202,7 @@ def hours():
 
 def current_location():
     while(True):
-        print('\n-CURRENT LOCATION')
+        print('\n-CURRENT LOCATION-')
         print('Press \'q\' to return to the Help Me Choose menu')
         print('Select your current location on campus')
         print('0: North campus')
@@ -206,7 +211,7 @@ def current_location():
         try:
             select = input('>> ')
             if select.lower() == 'q':
-                return [-1]
+                return -1
             select = int(select)
             if select < 0 or select > 2:
                 raise Exception
@@ -218,9 +223,11 @@ def current_location():
 
 def shopping(options):
     while(True):
-        print('\n-SHOPPING-')
+        print('\n-SHOPPING-', end='')
         try:
             select = current_location()
+            if select == -1:
+                return -1
             if select == 0:
                 return list(set(options) - set(SOUTH_CAMPUS))
             elif select == 1:
@@ -237,6 +244,7 @@ def shopping(options):
 def eating(options):
     while(True):
         print('\n-EATING-')
+        print('Press \'q\' to return to the Help Me Choose menu')
         print('Choose your preferred form of dining')
         print('0: Buffet')
         print('1: A la carte')
@@ -244,9 +252,11 @@ def eating(options):
         try:
             select = input('>> ')
             if select.lower() == 'q':
-                break
+                return -1
             select = int(select)
             select2 = current_location()
+            if select2 == -1:
+                return -1
             if select == 0:
                 options = list(set(options) - set(A_LA_CARTE))
             elif select == 1:
@@ -289,7 +299,8 @@ def dining_locations():
 
 def help_choose():
     while(True):
-        options = LOCATIONS
+        options = LOCATIONS.copy()
+        options.remove(LOCATION.J2_FAST)
         print('\n-HELP ME CHOOSE-')
         print('Press \'q\' to return to the main menu')
         print('Are you shopping or eating?')
@@ -306,17 +317,19 @@ def help_choose():
                 options = eating(list(set(options) - set(SHOP)))
             else:
                 raise Exception
-            print(options)
+            if options == -1:
+                continue
             print('Go to ', end='')
             rand = random.random()
             div = 1 / len(options)
+            check = div
             count = 0
-            while div <= 1:
-                if rand < div:
+            while check <= 1:
+                if rand < check:
                     print('%s!' % options[count].name)
                     input('\nPress enter to return to the Help Me Choose menu')
                     break
-                div += div
+                check += div
                 count += 1
         except Exception as ex:
             print(ex)
