@@ -651,6 +651,7 @@ def help():
                             print('Q:', i[2:])
                         else:
                             print('A:', i[2:])
+                            print()
                         count += 1
                     input('\nPress enter to continue')
                 else:

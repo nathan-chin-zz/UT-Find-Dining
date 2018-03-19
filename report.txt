@@ -1,0 +1,55 @@
+Name: Nathan Chin
+UT EID: nhc332
+
+ItoP: Assignment 4 - Report
+
+Here's a quick intro about my project. My project is named "UT Find Dining", and it's a python script that scrapes
+the web to get data about the dining locations on campus at UT Austin. Although at some point I intended to make it 
+a website so more people could use it easily, it ended up being a simple python script that reads user input. Some 
+of the tools I used include python (of course), the Beautiful Soup Library, and the urllib3 HTTP client. 
+
+I forgot to email you before I started working on this because I was excited about my project topic and began 
+working immediately. I'll explain how it uses python enough to count as a valid idea. After googling some possibilities
+with python, I discovered BeautifulSoup, a library used for web scraping. Web scraping is something I recently found
+out about, and I didn't realize until this class that it could be done in python. The idea of parsing data on the 
+internet has huge potential, and learning this skill is something I sought to gain from this lab. Parsing through 
+strings is super easy on python, and the availability of HTTP clients through python modules allowed me to easily 
+gather the needed data to be parsed. Through this project, I've dealt with lists, sets, classes (enums specifically), 
+reading user input, etc. I feel like, through picking up new libraries fairly quickly and writing modular code, that
+I learned a lot about python and its capabilities.
+
+The goal of my project was to make something I could use with my new python knowledge. I chose this idea because, 
+after learning python, I knew it had a lot of applications being a scripting language. Python's simple syntax and the 
+large number of libraries/modules available for it led me to find the BeautifulSoup library. After looking through the 
+documentation, I knew it would be something I could pick up pretty quickly and use to accomplish my project idea.
+The project idea came about when I was looking at the dining hall menus. There's a specific dish that I really like 
+in the dining halls, and I wanted to know when the dining halls would serve it. I wanted to create a way to search 
+the dining hall menus and view the data easily without having to click through a bunch of links. Combining web 
+scraping with this allowed me to create the perfect tool every on-campus student needs.
+
+Here's how to run my project. If I remember correctly, you must pip install BeautifulSoup, urllib3, and the lxml 
+parser. If you get any other errors because of not installing something, hopefully you can just Google it (sorry!).
+You must download the web_scrape.py file and the help.txt file, which contains all of text needed to answer the 
+FAQ questions. To run the script, simply type 'python web_scrape.py,' and the rest of the script can be navigated 
+by reading the instructions. There are five main functions you can do: one is to view dining location information, 
+including dining hours and dining menus for days up to a week, second you can have the script choose a dining 
+location for you to eat at based on answering simple questions (and some random number generation), third you can 
+search all of the menus within a week to find a specific food item, fourth you can read about the script and about 
+the author (me), and fifth you can read the FAQ section I created with answers to questions about usage or possible 
+errors. Instructions are printed onto the screen as you run, so as long as they're followed it should be okay (I 
+have try/excepts in case of incorrect input).
+
+I'm not really sure how to reference the material we learned in class. A lot of the skills I used were just basic 
+programming principals with string manipulation, reading user input, using data structures like lists and sets, and 
+using classes for enums (although they weren't really used for OOP). I think because things like functional programming 
+and OOP in python were harder for me to wrap my mind around, I didn't naturally think of solutions involving these 
+things. I think the class materials really got me to think of different ways to approach the problem and apply 
+'pythonic' methods of solving them.
+
+Overall, working on this project explained a lot of python to me. I ended up not writing the most efficient code, I 
+admit that (lots of embedded for loops), but that's because I spent so much time on this project just figuring out
+how to fix my syntax errors, using the libraries, and scraping the right data from the web. Learning to code the 
+'pythonic' way in some of the problems I faced was also cool to find out. Man, going back to other programming 
+languages is going to be hard.
+
+
